@@ -27,9 +27,10 @@ esbuild.build({
 
 esbuild.serve({
     servedir: path.resolve(__dirname, '../examples'),
+    port: 8000
 }, {}).then(() => {
   http.createServer((req, res) => {
-    const { url, method, headers } = req
+    const { url, method, headers } = req;
     if (req.url === '/esbuild')
       return clients.push(
         res.writeHead(200, {
@@ -46,11 +47,11 @@ esbuild.serve({
       }),
       { end: true }
     )
-  }).listen(3000)
+  }).listen(8000)
 
   setTimeout(() => {
     const op = { darwin: ['open'], linux: ['xdg-open'], win32: ['cmd', '/c', 'start'] }
     const ptf = process.platform
-    if (clients.length === 0) spawn(op[ptf][0], [...[op[ptf].slice(1)], `http://localhost:3000`])
+    if (clients.length === 0) spawn(op[ptf][0], [...[op[ptf].slice(1)], `http://localhost:8000`])
   }, 1000) //open the default browser only if it is not opened yet
 })

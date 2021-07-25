@@ -1,7 +1,10 @@
 /* eslint-disable no-console */
-import React from 'react';
+import React, { useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
-import _ from 'lodash';
+import _get from 'lodash/get';
+import _cloneDeep from 'lodash/cloneDeep';
+import _isNil from 'lodash/isNil';
+import _isNaN from 'lodash/isNaN';
 import Cell from '../Cell';
 import { arrowToCoord } from '../../utils/keyboardUtils';
 import { useStorage } from '../../hooks/storage';
@@ -13,16 +16,16 @@ const Crossword = ({
   colSize: GRID_COL = 12,
   cellSize = 40,
 }) => {
-  const [direction, setDirection] = React.useState('row');
-  const [editMode, setEditMode] = React.useState(false);
-  const [active, setActive] = React.useState({ col: 0, row: 0 });
+  const [direction, setDirection] = useState('row');
+  const [editMode, setEditMode] = useState(false);
+  const [active, setActive] = useState({ col: 0, row: 0 });
   const { grid, guess, setGrid, setGuess, reset: resetData } = useStorage(GRID_ROW, GRID_COL);
 
-  const cols = React.useMemo(() => new Array(GRID_COL).fill(''), [GRID_COL]);
+  const cols = useMemo(() => new Array(GRID_COL).fill(''), [GRID_COL]);
 
   function handleClick(row, col) {
     if (editMode) {
-      const newState = _.cloneDeep(grid);
+      const newState = _cloneDeep(grid);
       newState[row][col] = !grid[row][col];
       setGrid(newState)
     } else {
@@ -42,7 +45,7 @@ const Crossword = ({
   }
 
   function moveActive(row, col, step = 1) {
-    if (!_.isNaN(active.row) && !_.isNaN(active.col)) {
+    if (!_isNaN(active.row) && !_isNaN(active.col)) {
       const nextCol = active.col + (col * step);
       const nextRow = active.row + (row * step);
       if (
@@ -83,10 +86,10 @@ const Crossword = ({
     if (!e.ctrlKey) {
       e.preventDefault();
     }
-    if (!_.isNil(active.row) && !_.isNil(active.col) && !e.ctrlKey && !editMode) {
+    if (!_isNil(active.row) && !_isNil(active.col) && !e.ctrlKey && !editMode) {
       // Letter
       if (e.keyCode >= 65 && e.keyCode <= 90) {
-        const newState = _.cloneDeep(guess);
+        const newState = _cloneDeep(guess);
         newState[active.row][active.col] = e.key;
         setGuess(newState);
         moveToNext();
@@ -98,7 +101,7 @@ const Crossword = ({
       }
       // Backspace
       else if (e.keyCode === 8) {
-        const newState = _.cloneDeep(guess);
+        const newState = _cloneDeep(guess);
         newState[active.row][active.col] = '';
         setGuess(newState);
         moveToPrevious();
@@ -125,7 +128,7 @@ const Crossword = ({
         </div>
         {
           grid.map((row, i) => (
-            <Row key={i} value={i} cellSize={cellSize}>
+            <Row key={i} value={i + 1} cellSize={cellSize}>
               {row.map((cell, j) => (
                 <Cell
                 key={`${i}-${j}`}
@@ -136,7 +139,7 @@ const Crossword = ({
                   active={!editMode && ((i === active.row && direction === 'row') || (j === active.col && direction === 'col'))}
                   selected={!editMode && i === active.row && j === active.col}
                   >
-                  { _.get(guess, `[${i}][${j}`)}
+                  { _get(guess, `[${i}][${j}`)}
                 </Cell>
               ))}
             </Row>
